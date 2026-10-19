@@ -1,0 +1,30 @@
+# Guarda local antes do commit. Depois de clonar: npm install && lefthook install
+# Pular uma vez: LEFTHOOK=0 git commit
+pre-commit:
+  parallel: true
+  commands:
+    gitleaks:
+      run: gitleaks protect --staged --no-banner
+    prettier:
+      glob: '*.{ts,js,json,yml,yaml}'
+      run: npx prettier --check {staged_files}
+    eslint:
+      glob: '*.{ts,js}'
+      run: npx eslint {staged_files}
+
+# Conventional Commits do projeto: tipo(escopo): resumo, com descrição no corpo.
+# Escopo obrigatório e corpo obrigatório; detalhes em docs/convencoes.md.
+commit-msg:
+  commands:
+    conventional:
+      run: |
+        head -1 {1} | grep -qE '^(feat|fix|refactor|perf|test|docs|build|ci|chore|style|revert)\([a-z0-9-]+\)!?: .{1,72}$' || {
+          echo "Mensagem fora do padrão: tipo(escopo): resumo"
+          echo "Tipos: feat fix refactor perf test docs build ci chore style revert"
+          echo "Exemplo: feat(auth): valida RS256 com a chave pública do authorization"
+          exit 1
+        }
+        sed -n '2,$p' {1} | grep -qE '[^[:space:]]' || {
+          echo "Falta a descrição (corpo) depois do resumo: explique o porquê da mudança."
+          exit 1
+        }
