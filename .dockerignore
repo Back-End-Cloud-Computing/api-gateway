@@ -1,0 +1,8 @@
+node_modules
+dist
+tests
+docs
+k8s
+.git
+.env
+graphify-out
