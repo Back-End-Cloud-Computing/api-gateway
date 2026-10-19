@@ -1,0 +1,19 @@
+# Só a porta 3000 entra pelo Ingress; /metrics vive na 9100 e fica sem rota.
+# Os Ingress dos outros serviços continuam como estão (ADR 0003).
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api-gateway-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: api.ganjj.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  number: 3000

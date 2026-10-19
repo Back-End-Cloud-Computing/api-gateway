@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-gateway-config
+data:
+  PORT: "3000"
+  METRICS_PORT: "9100"
+  LOG_LEVEL: info
+  AUTH_BASE_URL: http://authorization:8081
+  JWT_ISSUER: ganjj-authorization
+  CLIENT_URL: http://client:8082
+  ORDER_URL: http://order:8080
+  CART_URL: http://shopping-cart:3003
+  PRODUCT_URL: http://product-api:8000
+  PROMOTION_URL: http://promotion:8000
+  UPSTREAM_TIMEOUT_MS: "10000"
+  RATE_LIMIT_MAX: "100"
+  RATE_LIMIT_WINDOW: 1 minute
+  RATE_LIMIT_AUTH_MAX: "10"
+  CORS_ORIGINS: ""
