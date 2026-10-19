@@ -124,14 +124,15 @@ describe('rate limit', () => {
 });
 
 describe('upstream failures', () => {
+  // undici agrupa timers em passos de ~500 ms: timeout menor que isso dispara atrasado
   it('E6 returns 504 when the upstream is slower than the timeout', async () => {
     const slow = await startUpstream('promotion', (_req, res) => {
       setTimeout(() => {
         res.writeHead(200);
         res.end('{}');
-      }, 400);
+      }, 2500);
     });
-    const app = await make({ upstreamTimeoutMs: 100 }, { ...up, promotion: slow });
+    const app = await make({ upstreamTimeoutMs: 600 }, { ...up, promotion: slow });
     const res = await app.inject({ method: 'GET', url: '/api/sale' });
     expect(res.statusCode).toBe(504);
     expect(res.json()).toHaveProperty('correlation_id');

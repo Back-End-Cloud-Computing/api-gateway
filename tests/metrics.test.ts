@@ -17,7 +17,7 @@ let up: Record<UpstreamName, FakeUpstream>;
 beforeAll(async () => {
   keys = await makeKeys();
   up = await startAllUpstreams();
-  app = await buildApp(testConfig(up, { jwtPublicKey: keys.publicPem, rateLimitMax: 2 }));
+  app = await buildApp(testConfig(up, { jwtPublicKey: keys.publicPem }));
 });
 
 afterAll(async () => {
@@ -43,12 +43,16 @@ describe('metrics', () => {
   });
 
   it('M3 counts a 429 by scope', async () => {
-    await app.inject({ method: 'GET', url: '/api/sale' });
-    const res = await app.inject({ method: 'GET', url: '/api/sale' });
+    const limited = await buildApp(
+      testConfig(up, { jwtPublicKey: keys.publicPem, rateLimitMax: 1 }),
+    );
+    await limited.inject({ method: 'GET', url: '/api/sale' });
+    const res = await limited.inject({ method: 'GET', url: '/api/sale' });
     expect(res.statusCode).toBe(429);
-    expect(await app.metricsRegistry.metrics()).toContain(
+    expect(await limited.metricsRegistry.metrics()).toContain(
       'gateway_rate_limited_total{scope="global"} 1',
     );
+    await limited.close();
   });
 
   it('M4 never puts the raw path in a label', async () => {

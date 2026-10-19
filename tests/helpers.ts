@@ -1,6 +1,6 @@
 import http from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { SignJWT, exportSPKI, generateKeyPair, type KeyLike } from 'jose';
+import { SignJWT, exportSPKI, generateKeyPair } from 'jose';
 import type { Config } from '../src/config.js';
 
 export const UPSTREAM_NAMES = [
@@ -67,7 +67,7 @@ export async function startAllUpstreams(): Promise<Record<UpstreamName, FakeUpst
 
 export interface Keys {
   publicPem: string;
-  privateKey: KeyLike;
+  privateKey: CryptoKey;
   sign: (opts?: SignOptions) => Promise<string>;
 }
 
@@ -75,7 +75,7 @@ export interface SignOptions {
   typ?: string;
   iss?: string;
   exp?: number | string;
-  key?: KeyLike;
+  key?: CryptoKey;
 }
 
 export async function makeKeys(): Promise<Keys> {
