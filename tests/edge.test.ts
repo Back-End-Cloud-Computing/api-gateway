@@ -139,6 +139,25 @@ describe('upstream failures', () => {
     await slow.close();
   });
 
+  it('E6b gives POST /products its own, longer timeout', async () => {
+    const slow = await startUpstream('product', (_req, res) => {
+      setTimeout(() => {
+        res.writeHead(201);
+        res.end('{}');
+      }, 1500);
+    });
+    const app = await make(
+      { upstreamTimeoutMs: 600, productCreateTimeoutMs: 3000 },
+      { ...up, product: slow },
+    );
+    const auth = { authorization: `Bearer ${await keys.sign()}` };
+    const post = await app.inject({ method: 'POST', url: '/products', headers: auth, payload: {} });
+    expect(post.statusCode).toBe(201);
+    const get = await app.inject({ method: 'GET', url: '/products', headers: auth });
+    expect(get.statusCode).toBe(504);
+    await slow.close();
+  });
+
   it('E7 returns 502 when the upstream is down', async () => {
     const dead = await startUpstream('promotion');
     const url = dead.url;

@@ -17,6 +17,8 @@ export interface Config {
   jwtIssuer: string;
   upstreams: Record<UpstreamName, string>;
   upstreamTimeoutMs: number;
+  // POST /products espera o llm-provider e o embedding-reranking, então leva mais que o resto
+  productCreateTimeoutMs: number;
   rateLimitMax: number;
   rateLimitWindow: string;
   rateLimitAuthMax: number;
@@ -61,6 +63,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
       promotion: url(env, 'PROMOTION_URL', 'http://promotion:8000'),
     },
     upstreamTimeoutMs: int(env, 'UPSTREAM_TIMEOUT_MS', 10_000),
+    productCreateTimeoutMs: int(env, 'UPSTREAM_TIMEOUT_PRODUCTS_MS', 30_000),
     rateLimitMax: int(env, 'RATE_LIMIT_MAX', 100),
     rateLimitWindow: env.RATE_LIMIT_WINDOW || '1 minute',
     rateLimitAuthMax: int(env, 'RATE_LIMIT_AUTH_MAX', 10),

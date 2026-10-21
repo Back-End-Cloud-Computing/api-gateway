@@ -40,6 +40,6 @@ Formato achatado, igual ao dos outros serviços: `{"error": "mensagem", "correla
 | 404 | Caminho fora da tabela de rotas (inclui `/internal/*`) |
 | 429 | Rate limit; traz `Retry-After` |
 | 502 | Serviço recusou a conexão |
-| 504 | Serviço não respondeu dentro de `UPSTREAM_TIMEOUT_MS` |
+| 504 | Serviço não respondeu dentro de `UPSTREAM_TIMEOUT_MS` (`UPSTREAM_TIMEOUT_PRODUCTS_MS` no `POST /products`) |
 
 Erros do serviço de destino (400, 403, 404, 422, 5xx do próprio serviço) passam sem alteração.

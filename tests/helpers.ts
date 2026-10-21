@@ -106,6 +106,7 @@ export function testConfig(
       UPSTREAM_NAMES.map((n) => [n, upstreams[n].url]),
     ) as Config['upstreams'],
     upstreamTimeoutMs: 2000,
+    productCreateTimeoutMs: 2000,
     rateLimitMax: 1000,
     rateLimitWindow: '1 minute',
     rateLimitAuthMax: 1000,
