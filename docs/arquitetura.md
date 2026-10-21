@@ -73,6 +73,7 @@ Alternativa para ambiente sem o `authorization`: `JWT_PUBLIC_KEY` (PEM) na Confi
 | `JWT_ISSUER` | `ganjj-authorization` | Issuer esperado |
 | `CLIENT_URL`, `ORDER_URL`, `CART_URL`, `PRODUCT_URL`, `PROMOTION_URL` | `http://<service>:<porta>` | Upstreams |
 | `UPSTREAM_TIMEOUT_MS` | `10000` | Timeout por requisição ao upstream |
+| `UPSTREAM_TIMEOUT_PRODUCTS_MS` | `30000` | Timeout só do `POST /products`, que espera llm-provider e embedding-reranking |
 | `RATE_LIMIT_MAX` / `RATE_LIMIT_WINDOW` | `100` / `1 minute` | Limite por IP |
 | `RATE_LIMIT_AUTH_MAX` | `10` | Limite por minuto em `/auth/login` e `/auth/register` |
 | `CORS_ORIGINS` | vazio (desligado) | Origens permitidas, separadas por vírgula |

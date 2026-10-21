@@ -74,7 +74,8 @@ export async function buildApp(config: Config): Promise<FastifyInstance> {
   );
 
   const proxy = async (req: FastifyRequest, reply: FastifyReply) => {
-    const route = findRoute(req.method, req.url.split('?')[0] ?? '/');
+    const path = req.url.split('?')[0] ?? '/';
+    const route = findRoute(req.method, path);
     if (!route) return sendError(reply, 404, 'rota não encontrada');
     req.upstreamName = route.upstream;
 
@@ -93,7 +94,10 @@ export async function buildApp(config: Config): Promise<FastifyInstance> {
     }
 
     return reply.from(config.upstreams[route.upstream] + req.url, {
-      timeout: config.upstreamTimeoutMs,
+      timeout:
+        req.method === 'POST' && path === '/products'
+          ? config.productCreateTimeoutMs
+          : config.upstreamTimeoutMs,
       rewriteRequestHeaders: (_r, headers) => {
         const out: Record<string, string | string[] | undefined> = {
           ...headers,
