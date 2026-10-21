@@ -14,7 +14,7 @@ Cada fase é entregável sozinha e ancorada numa data da disciplina. Data de hoj
 
 ## Por fase: pronto quando
 
-- **1:** `npm test` verde; `curl` local nas rotas pública, protegida e `/internal`.
+- **1:** `yarn test` verde; `curl` local nas rotas pública, protegida e `/internal`.
 - **2:** `kubectl get pods` com 2 réplicas `1/1`; `curl -H "Host: api.ganjj.local" .../api/sale` retorna 200.
 - **3:** `helm install` sobe o mesmo estado que `kubectl apply -k k8s/`.
 - **4:** painel mostra requisições por upstream, latência p95 e 401/429/5xx em tempo real durante a demo.

@@ -27,9 +27,9 @@ Comece por [`docs/README.md`](docs/README.md). Resumo:
 
 ```bash
 cp .env.example .env
-npm install
-npm run dev          # http://localhost:3000
-npm test
+yarn install
+yarn dev              # http://localhost:3000
+yarn test
 ```
 
 No cluster (minikube): ver [`k8s/README.md`](k8s/README.md).

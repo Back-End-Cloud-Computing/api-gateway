@@ -61,4 +61,4 @@ e `GET /clients/me` pelo gateway.
 
 ## Como rodar
 
-`npm test` localmente e no CI (`ci.yml`). Cobertura não é meta; os casos acima são.
+`yarn test` localmente e no CI (`ci.yml`). Cobertura não é meta; os casos acima são.
