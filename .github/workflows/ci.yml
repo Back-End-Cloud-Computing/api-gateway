@@ -23,19 +23,18 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
 
       - name: Dependências
-        run: npm ci
+        run: yarn install
 
       - name: Lint (ESLint e Prettier)
-        run: npm run lint
+        run: yarn lint
 
       - name: Typecheck
-        run: npm run typecheck
+        run: yarn typecheck
 
       - name: Testes (Vitest)
-        run: npm test
+        run: yarn test
 
       - name: Build da imagem Docker
         run: docker build -t api-gateway .

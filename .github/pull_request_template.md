@@ -4,7 +4,7 @@
 
 ## Como testar
 
-<!-- Comandos ou passos. Ex.: npm test; curl -H "Host: api.ganjj.local" ... -->
+<!-- Comandos ou passos. Ex.: yarn test; curl -H "Host: api.ganjj.local" ... -->
 
 ## Checklist
 

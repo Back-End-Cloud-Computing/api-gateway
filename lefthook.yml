@@ -1,4 +1,4 @@
-# Guarda local antes do commit. Depois de clonar: npm install && lefthook install
+# Guarda local antes do commit. Depois de clonar: yarn install && lefthook install
 # Pular uma vez: LEFTHOOK=0 git commit
 pre-commit:
   parallel: true
@@ -7,10 +7,10 @@ pre-commit:
       run: gitleaks protect --staged --no-banner
     prettier:
       glob: '*.{ts,js,json,yml,yaml}'
-      run: npx prettier --check {staged_files}
+      run: yarn prettier --check {staged_files}
     eslint:
       glob: '*.{ts,js}'
-      run: npx eslint {staged_files}
+      run: yarn eslint {staged_files}
 
 # Conventional Commits do projeto: tipo(escopo): resumo, com descrição no corpo.
 # Escopo obrigatório e corpo obrigatório; detalhes em docs/convencoes.md.
