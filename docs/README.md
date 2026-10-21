@@ -9,6 +9,7 @@ Escrita para ser lida na ordem abaixo. Fluxo de trabalho: pergunta, decisão, do
 | [PRD](prd.md) | Problema, escopo, fora de escopo, critérios de aceite |
 | [Arquitetura](arquitetura.md) | Tabela de rotas, fluxo de uma requisição, configuração, métricas |
 | [Contrato](contrato-api.md) | Endpoints próprios, cabeçalhos, formato de erro |
+| [Rotas x serviços](rotas-upstream.md) | Cada rota do gateway contra o caminho real do serviço, com status observado |
 | [Testes](testes.md) | Casos de teste definidos antes da implementação |
 | [Fases](fases.md) | Entregas e datas |
 | [Integração](integration-issues.md) | Dependências dos outros serviços e riscos |
