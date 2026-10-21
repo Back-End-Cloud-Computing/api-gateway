@@ -8,7 +8,7 @@ Nos repos dos colegas só se abre issue; nada é editado neles.
 | ID | Tema | Serviços | Situação | Bloqueia agora? |
 |---|---|---|---|---|
 | GW-001 | Confirmar nome de Service, porta e rotas públicas de cada serviço | todos | Valores lidos dos repos em 19/10; falta cada dono confirmar | Não |
-| GW-002 | Teste ponta a ponta com token real | `authorization` | Pendente: Lucas pede token e usuário ao dono do `authorization` | Não (fase 1 usa chave de teste) |
+| GW-002 | Teste ponta a ponta com token real | `authorization` | Executado em 21/10 com a chave de lab; falta repetir com a chave e o usuário oficiais do Eduardo | Não (fase 1 usa chave de teste) |
 | GW-003 | Chave pública sem JWKS nem rotação | `authorization` | Aceito no [ADR 0002](adr/0002-jwt-na-borda.md) | Não |
 | GW-004 | Encaminhar `Authorization`, `Cookie`, `Idempotency-Key`, `X-Correlation-ID`; preservar `Location` | `order` | Checklist aberto no `order` (INTEGRATION-CONTRACTS §7); coberto por E1, E3 e E9 | Não |
 | GW-005 | Gateway contornável pelos Ingress dos serviços | todos | Aceito no [ADR 0003](adr/0003-ingress-coexistindo.md) | Não |
@@ -34,11 +34,14 @@ Todos em `default` (nenhum manifest define namespace); se algum dono mudar, ajus
 
 ### GW-002 — Checklist com token real
 
-- [ ] `POST /auth/login` pelo gateway devolve token (rota pública, 10 por minuto).
-- [ ] `GET /clients/me` com o token retorna 200; sem token, 401.
-- [ ] `GET /products` com o token retorna 200.
-- [ ] `GET /api/pedidos/meus` com o token retorna 200; `Idempotency-Key` chega ao `order`.
-- [ ] Token de refresh em rota protegida retorna 401.
+- [x] `POST /auth/login` pelo gateway devolve token (rota pública, 10 por minuto).
+- [x] `GET /clients/me` com o token retorna 200; sem token, 401. (Conta nova sem perfil recebe 404 do `client` até o `POST /clients`.)
+- [x] `GET /products` com o token retorna 200.
+- [x] `GET /api/pedidos/meus` com o token retorna 200.
+- [ ] `Idempotency-Key` chega ao `order`: coberto pelo teste E3 do gateway; no lab só `GET` foi exercitado, e o `order` não usa a chave em `GET`.
+- [x] Token de refresh em rota protegida retorna 401.
+
+**Execução de 21/10/2026:** imagem `bascratki/api-gateway:1.0.0` contra `authorization`, `client`, `product` e `order` locais (Compose), com a chave pública de um par gerado por `scripts/generate-keys.sh` do `authorization`. Repetir só com a chave e o usuário oficiais do Eduardo.
 
 ### GW-008 — Suporte
 
