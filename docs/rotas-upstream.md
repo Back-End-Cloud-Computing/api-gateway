@@ -23,8 +23,8 @@ O gateway usa os nomes reais. A divergência `product` x `product-api` (INT-009)
 | `GET /auth/public-key` | público | mesmo caminho | 200 |
 | `GET /auth/me`, `/auth/accounts` | token | mesmo caminho | roteadas; não exercitadas no smoke |
 | `/clients`, `/clients/me`, `/clients/{id}` | token | mesmo caminho (`GET /clients` e `/clients/{id}` só ADMIN) | cliente 403 em `GET /clients`, ADMIN 200 |
-| `/api/pedidos`, `/api/pedidos/meus`, `/{id}`, `/{id}/passo`, `/admin/todos` | token | mesmo caminho | `GET /api/pedidos` 405 (não há GET na raiz); `GET /meus` 200; `POST` 500 (bug do order, ver issue order #13) |
-| `/api/cart`, `/api/cart/items`, `/api/cart/items/{product_id}` | token | mesmo caminho | `GET /api/cart` 200; `POST /items` 500 (INT-009 e contrato com product) |
+| `/api/pedidos`, `/api/pedidos/meus`, `/{id}`, `/{id}/passo`, `/admin/todos` | token | mesmo caminho | `GET /api/pedidos` 405 (não há GET na raiz); `GET /meus` 200; `POST` 502 em 25/10 (order chama `/api/cesta`, o cart expõe `/api/cart`); antes 500 (ver issue order #13) |
+| `/api/cart`, `/api/cart/items`, `/api/cart/items/{product_id}` | token | mesmo caminho | `GET /api/cart` 200 com desconto (25/10); `POST /items` 201 (25/10); com o promotion fora: 504 (cart sem timeout) |
 | `/products`, `/products/{id}`, `/products/batch` | token | mesmo caminho | `GET /products` 200; `POST /products` leva ~15 s, ver [#23](https://github.com/Back-End-Cloud-Computing/api-gateway/issues/23) |
 | `/search/lexical`, `/search/semantic`, `/search/agentic_search` | token | mesmo caminho | roteadas; não exercitadas no smoke |
 | `GET /api/sale`, `GET /api/coupons/{code}/validate` | público | mesmo caminho | 200 |
