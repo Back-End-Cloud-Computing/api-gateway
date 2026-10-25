@@ -42,3 +42,5 @@ R3 apresentação técnica (3,0). Este roteiro cobre a parte do gateway; a ordem
 - [ ] Painel Grafana exportado em JSON e importado no cluster da demo.
 - [ ] Todos os serviços no ar no mesmo cluster.
 - [ ] Ensaio cronometrado.
+
+- Rodado em 25/10: token real pelo gateway, produto com preço e estoque, cart com desconto do promotion, 401 sem token e 404 em `/internal` e `/metrics`. Não demonstrar: pedido (502 até o order alinhar as rotas) e queda do promotion (504 até o cart ganhar timeout).
