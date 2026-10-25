@@ -4,6 +4,7 @@ import { buildApp } from '../src/server.js';
 import {
   makeKeys,
   startAllUpstreams,
+  startUpstream,
   testConfig,
   type FakeUpstream,
   type Keys,
@@ -114,5 +115,54 @@ describe('routing', () => {
     expect(res.statusCode).toBe(404);
     expect(res.json()).toHaveProperty('error');
     expect(res.json()).toHaveProperty('correlation_id');
+  });
+
+  it('R11 preserves the order contract headers, body, status and Location', async () => {
+    const location = '/api/pedidos/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+    const order = await startUpstream('order', (_req, res) => {
+      res.writeHead(201, { location, 'content-type': 'application/json' });
+      res.end(JSON.stringify({ id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' }));
+    });
+    const isolatedApp = await buildApp(
+      testConfig({ ...up, order }, { jwtPublicKey: keys.publicPem }),
+    );
+    const correlationId = '6a2f41a5-c3f9-4d0f-a8cb-0a6e8a8e1a11';
+    const idempotencyKey = 'checkout-gateway-contract';
+    const cookie = `accessToken=${token}; theme=dark`;
+    const body = JSON.stringify({
+      endereco_entrega: { rua: 'Rua A', numero: '1' },
+    });
+
+    try {
+      const res = await isolatedApp.inject({
+        method: 'POST',
+        url: '/api/pedidos',
+        headers: {
+          ...auth(),
+          cookie,
+          'idempotency-key': idempotencyKey,
+          'x-correlation-id': correlationId,
+          'x-internal-secret': 'must-not-cross-the-gateway',
+          'content-type': 'application/json',
+        },
+        payload: body,
+      });
+
+      expect(res.statusCode).toBe(201);
+      expect(res.headers.location).toBe(location);
+      expect(res.headers['x-correlation-id']).toBe(correlationId);
+      const last = order.calls.at(-1);
+      expect(last?.method).toBe('POST');
+      expect(last?.url).toBe('/api/pedidos');
+      expect(last?.headers.authorization).toBe(`Bearer ${token}`);
+      expect(last?.headers.cookie).toBe(cookie);
+      expect(last?.headers['idempotency-key']).toBe(idempotencyKey);
+      expect(last?.headers['x-correlation-id']).toBe(correlationId);
+      expect(last?.headers['x-internal-secret']).toBeUndefined();
+      expect(last?.body).toBe(body);
+    } finally {
+      await isolatedApp.close();
+      await order.close();
+    }
   });
 });
