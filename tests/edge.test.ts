@@ -1,3 +1,4 @@
+import { hostname } from 'node:os';
 import type { FastifyInstance } from 'fastify';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildApp } from '../src/server.js';
@@ -39,6 +40,12 @@ describe('correlation id and forwarded headers', () => {
     const id = res.headers['x-correlation-id'];
     expect(id).toMatch(UUID_RE);
     expect(up.promotion.calls.at(-1)?.headers['x-correlation-id']).toBe(id);
+  });
+
+  it('E1b identifies the gateway pod that served the request', async () => {
+    const app = await make();
+    const res = await app.inject({ method: 'GET', url: '/api/sale' });
+    expect(res.headers['x-gateway-served-by']).toBe(hostname());
   });
 
   it('E2 replaces an invalid id and keeps a valid one', async () => {
