@@ -1,0 +1,24 @@
+# Cluster da N2 no Amazon EKS, no padrão do lab Back L06 (AWS Academy Learner Lab).
+# O Learner Lab não deixa o eksctl criar roles IAM, então o cluster e os nodes usam
+# as roles prontas do lab. Os ARNs são preenchidos pelo create-cluster.sh a partir
+# da conta da sessão; não edite à mão.
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: ganjj
+  region: us-east-1
+
+iam:
+  serviceRoleARN: '${CLUSTER_ROLE_ARN}'
+
+managedNodeGroups:
+  - name: ganjj-nodes
+    # ~45 pods somando os 11 serviços e bancos; t3.large aceita 35 pods e 8 GiB por
+    # node (t3.medium: 17 pods e 4 GiB). SQL Server e Oracle pedem memória.
+    instanceType: t3.large
+    desiredCapacity: 2
+    minSize: 2
+    maxSize: 3
+    iam:
+      instanceRoleARN: '${NODE_ROLE_ARN}'

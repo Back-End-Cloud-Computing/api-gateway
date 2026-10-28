@@ -6,8 +6,8 @@ e a chave pública do `authorization` não é segredo.
 ## Subir
 
 ```bash
-docker build -t bascratki/api-gateway:1.0.0 .
-minikube image load bascratki/api-gateway:1.0.0   # ou docker push bascratki/api-gateway:1.0.0
+docker build -t bascratki/api-gateway:1.1.0 .
+minikube image load bascratki/api-gateway:1.1.0   # ou docker push bascratki/api-gateway:1.1.0
 kubectl apply -k k8s/
 kubectl rollout status deploy/api-gateway
 ```

@@ -34,6 +34,8 @@ yarn test
 
 No cluster (minikube): ver [`k8s/README.md`](k8s/README.md).
 
+No Amazon EKS (AWS Academy Learner Lab), com os 11 serviços: ver [`eks/README.md`](eks/README.md).
+
 ## Convenções
 
 Commits em Conventional Commits, PR por mudança, autor único. Detalhes em
