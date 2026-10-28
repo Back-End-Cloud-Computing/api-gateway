@@ -1,0 +1,22 @@
+{{- if .Values.ingress.enabled }}
+# Só a porta http entra pelo Ingress; /metrics vive na porta de métricas e fica sem rota.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api-gateway-ingress
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  rules:
+    - {{- with .Values.ingress.host }}
+      host: {{ . }}
+      {{- end }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  number: {{ .Values.config.PORT }}
+{{- end }}

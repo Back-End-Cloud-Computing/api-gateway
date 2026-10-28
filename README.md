@@ -32,7 +32,7 @@ yarn dev              # http://localhost:3000
 yarn test
 ```
 
-No cluster (minikube): ver [`k8s/README.md`](k8s/README.md).
+No cluster (minikube): ver [`k8s/README.md`](k8s/README.md), ou o chart Helm em [`helm/api-gateway/`](helm/api-gateway/README.md).
 
 No Amazon EKS (AWS Academy Learner Lab), com os 11 serviços: ver [`eks/README.md`](eks/README.md).
 
