@@ -25,4 +25,4 @@ kubectl port-forward deploy/api-gateway 9100 && curl localhost:9100/metrics
 
 ## Observabilidade
 
-O Prometheus lê `prometheus.io/*` do pod (porta 9100). Painel do Grafana entra em `k8s/observability/` depois da aula de 03/11.
+O Prometheus lê `prometheus.io/*` do pod (porta 9100). Prometheus, Grafana e o painel da solução: [`observability/`](observability/README.md).

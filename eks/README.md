@@ -21,6 +21,9 @@ kubectl get pods -A -w       # até tudo ficar Ready (SQL Server e Oracle demora
 
 `apply.sh` pode rodar de novo: os secrets só são criados na primeira vez.
 
+Prometheus e Grafana (opcional, extra da rubrica): `bash k8s/observability/install.sh`, ver
+[`k8s/observability/README.md`](../k8s/observability/README.md).
+
 | Diferença em relação ao `k8s/` de cada repo | Por quê |
 |---|---|
 | PVC trocado por `emptyDir` (`promotion-db-data`, `support-data`, volume do SQL Server do Order) | o node role do Learner Lab não tem a policy do EBS CSI e o lab não deixa anexar; PVC ficaria `Pending`. Dado some quando o pod é recriado |

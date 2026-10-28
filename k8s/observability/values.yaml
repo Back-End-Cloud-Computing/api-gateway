@@ -1,0 +1,70 @@
+# Valores do kube-prometheus-stack para a solução toda (install.sh fixa a versão do chart).
+# O Prometheus raspa qualquer pod com as anotações prometheus.io/scrape|port|path, que é o
+# padrão já usado pelo gateway, pelo promotion e pelos serviços dos colegas que expõem /metrics.
+
+# Sem Alertmanager e sem regras padrão: a demo mostra painel, não alerta, e o cluster é pequeno.
+alertmanager:
+  enabled: false
+defaultRules:
+  create: false
+
+# No EKS o control plane é gerenciado e não expõe esses alvos; ficariam DOWN para sempre.
+kubeEtcd:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeProxy:
+  enabled: false
+
+prometheus:
+  prometheusSpec:
+    retention: 2d
+    resources:
+      requests:
+        cpu: 100m
+        memory: 400Mi
+    additionalScrapeConfigs:
+      - job_name: kubernetes-pods
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+            action: keep
+            regex: 'true'
+          - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+            action: replace
+            regex: ([^:]+)(?::\d+)?;(\d+)
+            replacement: $1:$2
+            target_label: __address__
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+            action: replace
+            regex: (.+)
+            target_label: __metrics_path__
+          - source_labels: [__meta_kubernetes_namespace]
+            target_label: namespace
+          - source_labels: [__meta_kubernetes_pod_name]
+            target_label: pod
+          # app vem do label app ou, se faltar, de app.kubernetes.io/name (padrão do order).
+          - source_labels: [__meta_kubernetes_pod_label_app, __meta_kubernetes_pod_label_app_kubernetes_io_name]
+            regex: (.+);.*|;(.+)
+            replacement: $1$2
+            target_label: app
+
+grafana:
+  # Senha gerada pelo install.sh no Secret grafana-admin; nunca versionada.
+  admin:
+    existingSecret: grafana-admin
+    userKey: admin-user
+    passwordKey: admin-password
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+  # O sidecar carrega os ConfigMaps com o label grafana_dashboard=1 do namespace monitoring.
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      labelValue: '1'
