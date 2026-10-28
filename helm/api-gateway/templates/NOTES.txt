@@ -1,0 +1,13 @@
+O gateway só fica Ready depois de baixar a chave pública do authorization
+({{ .Values.config.AUTH_BASE_URL }}).
+
+Teste:
+  kubectl port-forward svc/api-gateway 8088:3000
+  curl localhost:8088/health/ready
+{{- if .Values.ingress.enabled }}
+{{- if .Values.ingress.host }}
+  curl http://{{ .Values.ingress.host }}/api/sale
+{{- else }}
+  curl http://<hostname-do-ELB>/api/sale
+{{- end }}
+{{- end }}
