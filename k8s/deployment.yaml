@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: api-gateway
-          image: bascratki/api-gateway:1.1.0
+          image: bascratki/api-gateway:1.1.1
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
