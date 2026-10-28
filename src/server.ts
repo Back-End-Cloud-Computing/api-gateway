@@ -107,6 +107,13 @@ export async function buildApp(config: Config): Promise<FastifyInstance> {
         delete out['x-internal-secret']; // nunca atravessa o gateway
         return out;
       },
+      // php artisan serve devolve Host com o endereço interno (promotion:8000); não vaza pro cliente
+      rewriteHeaders: (headers) => {
+        const out = { ...headers };
+        delete out.host;
+        delete out['x-powered-by'];
+        return out;
+      },
       onError: (r, { error }) => {
         const failure = classifyUpstreamError(error);
         metrics.upstreamErrors.inc({ upstream: route.upstream, kind: failure.kind });

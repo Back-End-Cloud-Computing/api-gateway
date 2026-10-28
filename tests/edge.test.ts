@@ -100,6 +100,24 @@ describe('correlation id and forwarded headers', () => {
     expect(res.headers.location).toBe('/api/pedidos/7');
     await created.close();
   });
+
+  it('E10 drops the upstream Host and X-Powered-By but keeps X-Served-By', async () => {
+    const leaky = await startUpstream('promotion', (_req, res) => {
+      res.writeHead(200, {
+        'content-type': 'application/json',
+        host: 'promotion:8000',
+        'x-powered-by': 'PHP/8.4',
+        'x-served-by': 'promotion-abc',
+      });
+      res.end('[]');
+    });
+    const app = await make({}, { ...up, promotion: leaky });
+    const res = await app.inject({ method: 'GET', url: '/api/sale' });
+    expect(res.headers.host).toBeUndefined();
+    expect(res.headers['x-powered-by']).toBeUndefined();
+    expect(res.headers['x-served-by']).toBe('promotion-abc');
+    await leaky.close();
+  });
 });
 
 describe('rate limit', () => {
