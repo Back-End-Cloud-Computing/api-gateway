@@ -23,6 +23,7 @@ serviço; aqui só o que o gateway acrescenta ou decide. Tabela de rotas em [arq
 | Cabeçalho | Comportamento |
 |---|---|
 | `X-Correlation-ID` | Aceita UUID da requisição ou gera um. Sempre devolvido na resposta e repassado ao serviço. |
+| `X-Gateway-Served-By` | Nome do pod do gateway que atendeu (hostname). O `X-Served-By` do serviço, quando existe, passa junto e mostra o pod do upstream. Evidência de balanceamento. |
 | `Idempotency-Key` | Repassado sem alteração (o `order` usa em `POST /api/pedidos`). |
 | `Authorization`, `Cookie` | Repassados sem alteração. |
 | `X-Forwarded-For`, `X-Forwarded-Host` | Acrescentados. |
