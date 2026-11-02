@@ -31,6 +31,9 @@ Prometheus e Grafana (opcional, extra da rubrica): `bash k8s/observability/insta
 | Só o Ingress do gateway, sem `host` | gateway é a entrada única; o hostname do ELB não resolve `api.ganjj.local` |
 | Secrets gerados com `openssl rand` | nenhum valor versionado; `INTERNAL_SECRET` igual em todos os serviços |
 
+Se os nodes ficarem `NotReady` com `cni plugin not initialized` (cluster sem o add-on de rede), instale o CNI e espere os nodes:
+`aws eks create-addon --cluster-name ganjj --region us-east-1 --addon-name vpc-cni`.
+
 Senha do admin do Authorization:
 `kubectl get secret authorization-credentials -o jsonpath='{.data.admin-password}' | base64 -d`
 

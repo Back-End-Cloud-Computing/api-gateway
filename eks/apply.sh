@@ -68,6 +68,11 @@ eks shopping-cart/k8s/redis.yaml shopping-cart/k8s/shopping-cart.yaml | kubectl 
 eks order/k8s/order-sqlserver.yaml order/k8s/order.yaml | kubectl apply -f -
 eks support/k8s/rabbitmq.yaml support/k8s/mailpit.yaml support/k8s/support.yaml | kubectl apply -f -
 kubectl kustomize promotion/k8s | KEEP_REPLICAS=1 eks | kubectl apply -f -
+# promotion/k8s/configmap.yaml traz uma chave pública de exemplo; sem trocar pela do authorization,
+# o promotion responde 401 "Assinatura do token inválida" a qualquer token real.
+kubectl patch configmap promotion-config --type merge \
+  -p "{\"data\":{\"JWT_PUBLIC_KEY\":\"$(perl -0pe 's/\n/\\n/g' "$PEM")\"}}"
+kubectl rollout restart deploy/promotion deploy/promotion-consumer
 kubectl kustomize api-gateway/k8s | KEEP_REPLICAS=1 eks | kubectl apply -f -
 # O webhook de admissão recusa Ingress até ganhar endpoint, um pouco depois do deploy ficar available.
 kubectl -n ingress-nginx wait --for=condition=available deploy/ingress-nginx-controller --timeout=300s
