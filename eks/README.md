@@ -27,7 +27,7 @@ Prometheus e Grafana (opcional, extra da rubrica): `bash k8s/observability/insta
 | Diferença em relação ao `k8s/` de cada repo | Por quê |
 |---|---|
 | PVC trocado por `emptyDir` (`promotion-db-data`, `support-data`, volume do SQL Server do Order) | o node role do Learner Lab não tem a policy do EBS CSI e o lab não deixa anexar; PVC ficaria `Pending`. Dado some quando o pod é recriado |
-| Réplicas em 1, exceto `api-gateway` e `promotion` (2) | caber em 2 nodes `t3.large` e ainda provar balanceamento |
+| Réplicas em 3 nos 11 serviços sem estado e em 1 em banco, RabbitMQ, consumer, mailpit e chromadb; 4 nodes `t3.large` | mostrar balanceamento em cada serviço. Com `emptyDir`, réplica de banco ou de broker é uma instância vazia e separada: em 09/11 isso quebrou o cupom (503, `no_coupon`) |
 | Só o Ingress do gateway, sem `host` | gateway é a entrada única; o hostname do ELB não resolve `api.ganjj.local` |
 | Secrets gerados com `openssl rand` | nenhum valor versionado; `INTERNAL_SECRET` igual em todos os serviços |
 

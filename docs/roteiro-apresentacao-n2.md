@@ -83,23 +83,26 @@ Cada um fala uma frase, nesta ordem, enquanto a imagem do seu serviço está na 
 
 ### Bloco 3 (1:15 a 2:15) Réplicas e escalonamento, Lucas
 
-Digita:
+Digita (na pasta do `promotion`):
 
 ```bash
-kubectl get deploy promotion api-gateway
-for i in $(seq 10); do curl -s -o /dev/null -D - "http://$ELB/api/sale" | grep -i served-by; done
-kubectl scale deploy/promotion --replicas=3
+bash scripts/demo-replicas.sh
+kubectl scale deploy/promotion --replicas=5
 kubectl get pods -l app=promotion
-kubectl scale deploy/promotion --replicas=2
+kubectl scale deploy/promotion --replicas=3
 ```
 
-Fala: "O promotion e o gateway rodam com 2 réplicas. Faço 10 requisições pelo Ingress: o cabeçalho
-`X-Served-By` troca de pod, e o `X-Gateway-Served-By` mostra o balanceamento do gateway. Agora escalo o promotion
-para 3: o Kubernetes sobe um terceiro Pod. Volto para 2."
+Fala: "Os 11 serviços sem estado rodam com 3 réplicas cada. O script faz 3 chamadas pelo Ingress a cada serviço e
+lista os Pods atrás do Service: no promotion o cabeçalho `X-Served-By` troca de Pod, e no gateway o
+`X-Gateway-Served-By` mostra o balanceamento. Banco, RabbitMQ e consumer ficam com 1 réplica de propósito: com
+volume local, uma réplica de banco seria um banco vazio separado. Agora escalo o promotion para 5: o Kubernetes
+sobe dois Pods novos. Volto para 3."
 
-Testado em 05/11: o `scale` para 3 levou cerca de 19 s até o terceiro Pod ficar `1/1` (o `get pods` logo depois pode
-mostrar `ContainerCreating`: dizer "está subindo" e seguir) e o `scale` de volta para 2 encerra o terceiro na hora.
-As 10 requisições deram 2 pods do promotion e 2 do gateway.
+Para um serviço só (se o tempo apertar): `bash scripts/demo-replicas.sh promotion api-gateway`.
+
+Testado em 09/11 no EKS (4 nodes): o script completo leva ~24 s; o `scale` do promotion para 5 mostra os 2 Pods
+novos em `Init`/`ContainerCreating` logo depois (dizer "está subindo" e seguir) e o `scale` de volta para 3
+encerra os extras na hora.
 
 ### Bloco 4 (2:15 a 4:45) Fluxo REST e RabbitMQ, cada um na sua vez
 
