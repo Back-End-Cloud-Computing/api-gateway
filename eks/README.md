@@ -50,7 +50,7 @@ kubectl logs deploy/promotion-consumer -f
 
 O DNS do ELB leva alguns minutos para propagar depois que o Service ganha `EXTERNAL-IP`. Não há painel do
 RabbitMQ: a imagem do support (`rabbitmq:4.1-alpine`) não traz o plugin de management. Execução completa de
-27/10/2026: [evidência no promotion](https://github.com/Back-End-Cloud-Computing/promotion/blob/main/docs/evidencias/eks-2026-10-27.md).
+27/10/2026: [evidência](../docs/evidencias/eks-2026-10-27.md).
 
 ## Apagar (sempre no fim)
 

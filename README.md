@@ -21,7 +21,12 @@ Comece por [`docs/README.md`](docs/README.md). Resumo:
 | [Testes](docs/testes.md) | Casos definidos antes do código (TDD) |
 | [Fases](docs/fases.md) | Entregas com datas |
 | [Integração](docs/integration-issues.md) | O que depende dos outros serviços |
-| [Roteiro N2](docs/apresentacao-n2.md) | O que mostrar na apresentação |
+| [Infra e roteiro do dia da N2](docs/infra-eks.md) | AWS Learner Lab, EKS, pré-voo e comandos do dia |
+| [Roteiro da apresentação N2](docs/roteiro-apresentacao-n2.md) | Quem fala, o que fala e o que digita nos 5 min |
+| [Roteiro N2 por serviço](docs/apresentacao-n2.md) | Gateway e Promotion: o que mostrar e o que defender |
+| [Guia de estudo da N2](docs/guia-estudo-n2.md) | Os 11 serviços e as perguntas prováveis |
+| [Rubrica da N2](docs/rubrica-n2.md) | Critérios do Canvas e como o projeto atende |
+| [Evidências no EKS](docs/evidencias/) | Ensaios rodados no cluster |
 
 ## Rodar localmente
 
