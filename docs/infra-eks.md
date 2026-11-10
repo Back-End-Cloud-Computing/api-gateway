@@ -59,6 +59,44 @@ Nosso slot (20h54 a 21h03): lab iniciado entre **17h03 e 19h39**; o ideal é per
 - Opção para o dia: o anfitrião projeta o terminal e cada integrante dita ou digita o comando do próprio serviço
   nessa máquina.
 
+## 2.1 Subir do zero (para outra pessoa ou para o Claude fazer)
+
+Feito em 09/11/2026 com os comandos abaixo, na raiz do clone do `api-gateway`, com os 11 repos lado a lado.
+Detalhes e diferenças dos manifests: [`eks/README.md`](../eks/README.md).
+
+1. Iniciar o Learner Lab (AWS Academy) e copiar **AWS Details > AWS CLI** para `~/.aws/credentials`
+   (`aws_access_key_id`, `aws_secret_access_key`, `aws_session_token`). Vence em 4 h. Nunca colar no chat nem no Git.
+2. Conferir a conta e que não há cluster antigo:
+
+   ```bash
+   aws sts get-caller-identity
+   aws eks list-clusters --region us-east-1      # esperado: {"clusters": []}
+   ```
+
+3. Criar o cluster (15 a 20 min; o script acha as roles `LabEks*`, chama `eksctl create cluster` e grava o kubeconfig):
+
+   ```bash
+   bash eks/create-cluster.sh
+   ```
+
+4. Aplicar Ingress NGINX, secrets e os 11 serviços, e esperar os pods (SQL Server e Oracle demoram):
+
+   ```bash
+   bash eks/apply.sh
+   kubectl get pods -A -w          # 23 pods Running
+   ```
+
+   Se os nodes ficarem `NotReady` com `cni plugin not initialized`:
+   `aws eks create-addon --cluster-name ganjj --region us-east-1 --addon-name vpc-cni`.
+5. Preparar a demonstração: `ELB=$(kubectl -n ingress-nginx get svc ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')`
+   e `curl -s -o /dev/null -w '%{http_code}\n' "http://$ELB/api/sale"` (200; o DNS do ELB leva alguns minutos).
+   Depois, na raiz do clone do `promotion`, `bash scripts/demo-eks.sh` uma vez inteiro (seed dos cupons, produto e pedido).
+6. Apagar no fim, nesta ordem (o ELB órfão trava a remoção da VPC): `kubectl delete -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.15.1/deploy/static/provider/aws/deploy.yaml`,
+   `eksctl delete cluster --name ganjj --region us-east-1`, `aws eks list-clusters --region us-east-1`.
+
+Para pedir a outra pessoa ou ao Claude: informar que o lab já está iniciado e as credenciais já estão em
+`~/.aws/credentials`; o resto sai dos passos acima.
+
 ## 3. Pré-voo (véspera e hora do slot)
 
 - [ ] Credenciais do lab ativas e `aws eks list-clusters --region us-east-1` vazio antes de criar.
@@ -79,7 +117,7 @@ Cada integrante fala do próprio serviço enquanto o comando dele roda; o profes
 | Min | Item do professor | Rubrica | Comando |
 |---|---|---|---|
 | 0:00 a 1:00 | Aplicação no EKS | R2 | `kubectl get nodes`; `kubectl get deploy,pods,svc` |
-| 1:00 a 2:00 | Diversidade tecnológica | R1 | `kubectl get pods -o custom-columns=POD:.metadata.name,IMAGE:.spec.containers[*].image` |
+| 1:00 a 2:00 | Diversidade tecnológica | R1 | `kubectl get pods -o 'custom-columns=POD:.metadata.name,IMAGE:.spec.containers[*].image'` |
 | 2:00 a 3:00 | Escalabilidade horizontal | R2 | ver bloco abaixo |
 | 3:00 a 5:00 | RabbitMQ e REST | R3 | `bash scripts/demo-eks.sh`, depois `list_queues` e log do consumer |
 

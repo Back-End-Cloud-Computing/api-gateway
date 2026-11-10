@@ -5,7 +5,7 @@ demonstração de **5 minutos** por equipe, sem PowerPoint, dentro de uma janela
 sobram são folga para troca de equipe e perguntas; **não** use essa folga na demonstração. Se o professor
 liberar mais tempo, o bloco 5 (seção 4) é o que se estende.
 
-Tudo abaixo foi rodado no EKS em 05/11/2026 (cluster novo, 23 pods `Running`). O que ainda não foi cronometrado com o grupo está dito no texto.
+Tudo abaixo foi rodado no EKS em 05/11 e de novo em 09/11/2026 (cluster novo, 23 pods de aplicação `Running`). O que ainda não foi cronometrado com o grupo está dito no texto.
 
 ## 1. Papéis
 
@@ -55,18 +55,21 @@ Digita:
 ```bash
 kubectl get nodes
 kubectl get deploy,pods,svc
+kubectl get ingress
 ```
 
 Fala: "Somos a equipe 10. A solução é uma loja em microsserviços: 11 serviços, 5 integrantes, todos em
-container e rodando num cluster Amazon EKS com 2 nodes. A entrada é um NGINX Ingress que aponta para o
-api-gateway, e o gateway roteia para os serviços. Aqui estão os Deployments, os Pods e os Services."
+container e rodando num cluster Amazon EKS com 2 nodes. A entrada é este Ingress NGINX, que aponta para o
+api-gateway, e o gateway roteia por path para os serviços. Aqui estão os Deployments, os Pods e os Services:
+cada banco tem o próprio Service (por exemplo `promotion-db`), então a persistência é isolada por serviço. Os
+serviços se falam pelo nome do Service, como `http://promotion:8000`, nunca por IP de Pod."
 
 ### Bloco 2 (0:30 a 1:15) Diversidade tecnológica, todos
 
 Digita (uma vez):
 
 ```bash
-kubectl get pods -o custom-columns=POD:.metadata.name,IMAGE:.spec.containers[*].image
+kubectl get pods -o 'custom-columns=POD:.metadata.name,IMAGE:.spec.containers[*].image'
 ```
 
 Cada um fala uma frase, nesta ordem, enquanto a imagem do seu serviço está na tela:
@@ -168,6 +171,7 @@ Mais respostas por serviço: [`guia-estudo-n2.md`](guia-estudo-n2.md), seção 7
 
 1. Ensaio em seco, sem cluster: cada um lê a própria fala em voz alta com cronômetro (meta: bloco dentro do tempo).
 2. Ensaio com cluster, completo e cronometrado, com o Lucas no teclado. O `demo-eks.sh` sozinho levou 33 s em 05/11
-   (sem as falas); o tempo com as falas só o grupo mede.
+   e 31 s em 09/11 (sem as falas); o tempo com as falas só o grupo mede. Em 09/11 os comandos dos blocos 1 a 3 levaram
+   poucos segundos; o terceiro Pod do `scale` ficou `1/1` em ~22 s. O ELB respondeu 200 depois de ~1 min do `apply.sh`.
 3. Ensaio final sem olhar o roteiro, na ordem da seção 2, e depois apagar o cluster
    ([`infra-eks.md`](infra-eks.md), seção 3).
