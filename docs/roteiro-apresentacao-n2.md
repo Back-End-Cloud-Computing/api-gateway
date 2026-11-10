@@ -59,7 +59,7 @@ kubectl get ingress
 ```
 
 Fala: "Somos a equipe 10. A solução é uma loja em microsserviços: 11 serviços, 5 integrantes, todos em
-container e rodando num cluster Amazon EKS com 2 nodes. A entrada é este Ingress NGINX, que aponta para o
+container e rodando num cluster Amazon EKS com 4 nodes. A entrada é este Ingress NGINX, que aponta para o
 api-gateway, e o gateway roteia por path para os serviços. Aqui estão os Deployments, os Pods e os Services:
 cada banco tem o próprio Service (por exemplo `promotion-db`), então a persistência é isolada por serviço. Os
 serviços se falam pelo nome do Service, como `http://promotion:8000`, nunca por IP de Pod."
@@ -88,7 +88,7 @@ Digita (na pasta do `promotion`):
 ```bash
 bash scripts/demo-replicas.sh
 kubectl scale deploy/promotion --replicas=5
-kubectl get pods -l app=promotion
+kubectl get pods -l app=promotion -w   # Ctrl+C quando os 5 ficarem 1/1
 kubectl scale deploy/promotion --replicas=3
 ```
 
@@ -99,6 +99,19 @@ volume local, uma réplica de banco seria um banco vazio separado. Agora escalo 
 sobe dois Pods novos. Volto para 3."
 
 Para um serviço só (se o tempo apertar): `bash scripts/demo-replicas.sh promotion api-gateway`.
+
+O mesmo `kubectl scale deploy/<nome> --replicas=N` vale para qualquer deploy sem estado (3 réplicas hoje):
+`api-gateway`, `promotion`, `authorization`, `client`, `order`, `shopping-cart`, `product-api`, `support`,
+`vector-db`, `llm-provider`, `embedding-reranking`. Só `api-gateway` e `promotion` devolvem o Pod no header
+(`X-Gateway-Served-By`, `X-Served-By`), então são os que provam o balanceamento depois do scale; nos outros, só a
+lista de Pods muda. **Não escalar** `promotion-db`, `mongodb`, `redis`, `rabbitmq`, `oracle-auth`, `postgres-client`,
+`chromadb`, `mailpit`, `promotion-consumer` nem `order-sqlserver` (StatefulSet): com `emptyDir`, cada réplica é uma
+instância vazia e separada (em 09/11 isso quebrou o cupom: 503, `no_coupon`). Acima de ~5 réplicas o cluster de
+4 nodes deixa Pods em `Pending`.
+
+**Roteiro automático** (na raiz do clone do `promotion`): `bash scripts/roteiro-n2.sh` mostra o PRÓXIMO comando e
+o seguinte, e só executa no Enter (`p` pula, `q` sai, Ctrl+C encerra só o `-w`). Cobre os blocos 1 a 4; o bloco 4
+mantém as pausas por integrante do `demo-eks.sh`.
 
 Testado em 09/11 no EKS (4 nodes): o script completo leva ~24 s; o `scale` do promotion para 5 mostra os 2 Pods
 novos em `Init`/`ContainerCreating` logo depois (dizer "está subindo" e seguir) e o `scale` de volta para 3
