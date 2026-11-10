@@ -27,7 +27,7 @@ linguagens diferentes e publicação e consumo no RabbitMQ.
 | Conta | Learner Lab de **um** integrante (o anfitrião); o cluster pertence a essa conta |
 | Anfitrião | Lucas (conta e cluster dele; também opera o teclado) |
 | Região | `us-east-1` |
-| Cluster | `ganjj`, 2 nodes `t3.large`, criado por `eks/create-cluster.sh` do `api-gateway` |
+| Cluster | `ganjj`, 4 nodes `t3.large`, criado por `eks/create-cluster.sh` do `api-gateway` |
 | Aplicação | `eks/apply.sh` aplica Ingress NGINX, secrets e os 11 serviços |
 | Entrada | ELB público do NGINX Ingress, regra única para o `api-gateway` |
 | Imagens | públicas (Docker Hub e GHCR); o cluster não precisa de credencial de registry |
@@ -133,11 +133,10 @@ kubectl get nodes
 kubectl get deploy,pods,svc
 
 # Minuto 2:00 a 3:00: réplicas, balanceamento e escalonamento
-kubectl get deploy promotion api-gateway
-for i in $(seq 10); do curl -s -o /dev/null -D - "http://$ELB/api/sale" | grep -i served-by; done
-kubectl scale deploy/promotion --replicas=3
-kubectl get pods -l app=promotion -w          # Ctrl+C quando o terceiro ficar Ready
-kubectl scale deploy/promotion --replicas=2   # volta ao estado do kit
+bash scripts/demo-replicas.sh                 # na raiz do clone do promotion: 3 chamadas por serviço e os Pods
+kubectl scale deploy/promotion --replicas=5
+kubectl get pods -l app=promotion -w          # Ctrl+C quando os novos ficarem Ready
+kubectl scale deploy/promotion --replicas=3   # volta ao estado do kit
 
 # Minuto 3:00 a 5:00: fluxo REST + mensageria
 bash scripts/demo-eks.sh   # na raiz do clone do promotion
@@ -145,8 +144,9 @@ kubectl exec deploy/rabbitmq -- rabbitmqctl list_queues name messages consumers
 kubectl logs deploy/promotion-consumer --tail=10
 ```
 
-Só `promotion` e `api-gateway` têm 2 réplicas no kit EKS (os demais ficam com 1 para caber em 2 nodes), por isso a
-escala se mostra neles. O `kubectl scale` em 3 réplicas foi testado em 05/11 (terceiro Pod `Ready` em ~19 s).
+O kit EKS sobe 11 serviços com 3 réplicas em 4 nodes (`apply.sh`); banco, RabbitMQ, consumer, mailpit e chromadb ficam
+com 1, porque com `emptyDir` cada réplica seria uma instância vazia e separada (testado em 09/11: com tudo em 3 o cupom
+deu 503 e o `outcome` virou `no_coupon`). A escala se mostra no `promotion`. O `kubectl scale` do promotion foi testado em 05/11 (3 réplicas, Pod `Ready` em ~19 s) e em 09/11 (5 réplicas).
 
 O RabbitMQ não tem painel (a imagem `rabbitmq:4.1-alpine` do support não traz o plugin de management), então a
 prova é `list_queues` com consumidor, o log do `promotion-consumer` e o `usage_count` do cupom subindo 1.

@@ -81,5 +81,11 @@ for _ in $(seq 30); do
   sleep 5
 done
 
+# 3 réplicas nos serviços sem estado, para mostrar balanceamento em cada um (ensaio de 09/11).
+# Banco, RabbitMQ, consumer, mailpit e chromadb ficam em 1: com emptyDir, cada réplica seria uma
+# instância vazia e separada (cupons inexistentes, mensagens em broker diferente do consumidor).
+kubectl scale deploy api-gateway promotion authorization client order shopping-cart product-api support \
+  vector-db llm-provider embedding-reranking --replicas=3
+
 kubectl -n ingress-nginx get svc ingress-nginx-controller
 echo "ELB: kubectl -n ingress-nginx get svc ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'"
