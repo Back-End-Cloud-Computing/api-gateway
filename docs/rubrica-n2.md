@@ -35,10 +35,10 @@ Regras importantes (texto do Canvas, resumido):
 |---|---|---|---|
 | **R1** | 3 pts: cada integrante com um microsserviço funcional; duas linguagens e dois bancos, persistência independente | 1,5 pts | 0 |
 | **R2** | 4 pts: implantado no Amazon EKS, com Docker, Services, Service Discovery, Ingress e balanceamento entre réplicas | 2 pts | 0 |
-| **R3** | 3 pts: integração por REST e RabbitMQ, com publicação, consumo e processamento de mensagens | a confirmar (era 1 pt com R3 em 2) | 0 |
+| **R3** | 3 pts: integração por REST e RabbitMQ, com publicação, consumo e processamento de mensagens | 1,5 pts | 0 |
 
 Os critérios somam 10. O Canvas de 27/10 trazia R3 com 2 pts (soma 9); o aviso do professor de 04/11
-([`infra-eks.md`](infra-eks.md)) fixa R3 em 3,0. Na apresentação são 5 minutos por equipe, sem PowerPoint, e a infra
+([`infra-eks.md`](infra-eks.md)) fixa R3 em 3,0, com 1,5 pts para o incompleto. Na apresentação são 5 minutos por equipe, sem PowerPoint, e a infra
 tem de estar pronta antes do slot.
 
 Helm, Prometheus, Grafana e JWT **não aparecem** na rubrica. Continuam no projeto como extra (`origem: nossa`).
@@ -53,7 +53,7 @@ Helm, Prometheus, Grafana e JWT **não aparecem** na rubrica. Continuam no proje
 | Amazon EKS | kit `eks/` no `api-gateway` (cluster eksctl no padrão do lab L06, `apply.sh` com os 11 repos) | 23 pods `1/1` em 2 nodes `t3.large`, [evidência EKS](evidencias/eks-2026-10-27.md) | ok (27/10) | Lucas |
 | Database per Service | um banco por serviço, cada um com Service próprio (`promotion-db`, `sqlserver`, `postgres`...) | `k8s/` | ok | todos |
 | REST | Cart → Product (preço e estoque), Cart → Promotion (cotação), Order → Cart e Product, gateway → todos | cotação 160/144 em 25/10 ([teste](https://github.com/Back-End-Cloud-Computing/promotion/blob/main/docs/teste-integracao-2026-10.md)) | ok; pedido completo depende do order#19 rodado no cluster | Lucas, João Liz, Rodrigo |
-| RabbitMQ | Order publica `OrderConfirmed` em `ganjj.orders`; Promotion consome (`promotion:consume-orders`, idempotente por `order_id`) e incrementa o uso do cupom; Support consome e notifica | no EKS: `consumed` com `usage_count` 0→1 e `duplicate` na republicação ([evidência EKS](evidencias/eks-2026-10-27.md)); broker local em 27/10 ([fase 4](https://github.com/Back-End-Cloud-Computing/promotion/blob/main/docs/fases/fase-4-integracao.md)) | consumers ok; publisher do Order mergeado em 28/10 ([order#21](https://github.com/Back-End-Cloud-Computing/order/pull/21), outbox, routing key `order.confirmed`), **ainda não rodado no EKS**; desde 03/11 o Order lê o cupom do carrinho (que o Cart persiste) e publica `coupon_code` (order#25), com `outcome=consumed` no Minikube e no EKS (03/11, [evidência](evidencias/e2e-eks-2026-11-03.md)); o Support consome `order.created` (publicado pelo Order em [order#22](https://github.com/Back-End-Cloud-Computing/order/pull/22)), não `order.confirmed` | Rodrigo, Eduardo, Lucas |
+| RabbitMQ | Order publica `OrderConfirmed` em `ganjj.orders`; Promotion consome (`promotion:consume-orders`, idempotente por `order_id`) e incrementa o uso do cupom; Support consome e notifica | no EKS: `consumed` com `usage_count` 0→1 e `duplicate` na republicação ([evidência EKS](evidencias/eks-2026-10-27.md)); broker local em 27/10 ([fase 4](https://github.com/Back-End-Cloud-Computing/promotion/blob/main/docs/fases/fase-4-integracao.md)) | consumers ok; publisher do Order mergeado em 28/10 ([order#21](https://github.com/Back-End-Cloud-Computing/order/pull/21), outbox, routing key `order.confirmed`), rodado no EKS em 03/11 e 09/11; desde 03/11 o Order lê o cupom do carrinho (que o Cart persiste) e publica `coupon_code` (order#25), com `outcome=consumed` no Minikube e no EKS (03/11, [evidência](evidencias/e2e-eks-2026-11-03.md)); o Support consome `order.created` (publicado pelo Order em [order#22](https://github.com/Back-End-Cloud-Computing/order/pull/22)), não `order.confirmed` | Rodrigo, Eduardo, Lucas |
 | Service Discovery | URLs por nome de Service: `http://promotion:8000`, `http://product-api:8000`, `rabbitmq:5672` | ConfigMaps dos serviços | ok | todos |
 | Escalabilidade horizontal | `promotion` e `api-gateway` com várias réplicas; header `X-Served-By` (promotion) e `X-Gateway-Served-By` (gateway) com o hostname do pod; o gateway já não repassa `Host` e `X-Powered-By` do serviço ([api-gateway#36](https://github.com/Back-End-Cloud-Computing/api-gateway/pull/36)) | 10 requisições pelo Ingress mostrando pods diferentes ([evidência EKS](evidencias/eks-2026-10-27.md)) | ok no EKS (27/10); gateway `1.1.1` rodado no EKS em 28/10 | Lucas |
 | Ingress NGINX | NGINX Ingress Controller com uma regra para o `api-gateway`, que roteia por path para cada serviço | `api-gateway/k8s/ingress.yaml`; no EKS, regra sem host pelo hostname do ELB ([evidência EKS](evidencias/eks-2026-10-27.md)) | ok no EKS (27/10) | Lucas |
@@ -65,15 +65,15 @@ gateway como essa camada de roteamento.
 
 ## Checklist da apresentação (itens do Canvas)
 
-- [ ] Arquitetura da solução e responsabilidade de cada microsserviço.
+- [x] Arquitetura da solução e responsabilidade de cada microsserviço.
 - [x] Microsserviços rodando no Amazon EKS (`kubectl get nodes` e `kubectl get pods -A`).
-- [ ] Linguagens e bancos utilizados.
-- [ ] Isolamento da persistência (um banco e um Service por serviço).
+- [x] Linguagens e bancos utilizados (`kubectl get pods -o 'custom-columns=...'`).
+- [x] Isolamento da persistência (um banco e um Service por serviço, `kubectl get svc`).
 - [x] Acesso externo às APIs pelo Ingress (hostname do ELB).
 - [x] Comunicação interna por Service Discovery (ConfigMaps com nomes de Service).
 - [x] Serviço com várias réplicas e balanceamento (headers de pod).
-- [ ] Fluxo integrado REST + RabbitMQ (pedido gera `OrderConfirmed`, uso do cupom incrementado). Consumo e processamento provados no EKS com mensagem publicada por AMQP; o publisher do Order está mergeado (order#21) e leva o `coupon_code` do carrinho desde 03/11 (order#25), provado no Minikube e no EKS em 03/11 ([evidência](evidencias/e2e-eks-2026-11-03.md)).
+- [x] Fluxo integrado REST + RabbitMQ: pedido gera `OrderConfirmed`, `promotion-consumer` registra `outcome=consumed` e o `usage_count` do cupom sobe 0 para 1; o Support entrega a notificação (`channel=email status=sent`). Rodado no EKS em 09/11 com `scripts/demo-eks.sh` (30 s).
 
 O roteiro da parte do `promotion` está em [`apresentacao-n2.md`](apresentacao-n2.md).
 
-Itens `[x]` foram rodados no EKS em 27/10/2026 ([evidência](evidencias/eks-2026-10-27.md)).
+Itens `[x]` foram rodados no EKS em 27/10/2026 ([evidência](evidencias/eks-2026-10-27.md)) e conferidos de novo em 09/11/2026 num cluster novo (ensaio da equipe 10).
